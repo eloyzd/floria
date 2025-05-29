@@ -5,23 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlorIA - Aprende Inglés con IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="description" content="FlorIA - Tu asistente IA para aprender inglés, versión HTML y JavaScript.">
+    <meta name="description" content="FlorIA - Tu asistente IA para aprender inglés, versión HTML y JavaScript, con tipos de ejercicio.">
     <style>
         body {
-            font-family: 'Inter', sans-serif; /* Usando una fuente similar a la de React */
+            font-family: 'Inter', sans-serif;
         }
-        .modal {
-            display: none; 
-        }
-        .modal.active {
-            display: flex; 
-        }
+        .modal { display: none; }
+        .modal.active { display: flex; }
         .loader {
             border: 3px solid #f3f3f3; 
             border-top: 3px solid #ec4899; 
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
             animation: spin 1s linear infinite;
             display: inline-block; 
             margin-right: 0.5rem;
@@ -30,25 +25,30 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Iconos SVG como CSS para fácil reutilización si es necesario, o se pueden embeber directamente */
-        .icon-chevron-down {
-            width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        .icon-chevron-down, .icon-check-circle, .icon-x-circle, .icon-lightbulb, .icon-sparkles {
+            width: 20px; height: 20px; stroke: currentColor; fill: none; 
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
         }
-        .icon-check-circle {
-            width: 20px; height: 20px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        .icon-sparkles { margin-left: 0.25rem; width: 16px; height: 16px;}
+        .ai-generated-content { white-space: pre-wrap; }
+        /* Estilos para opciones de radio en "¿Cuál es la opción?" */
+        .radio-option-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: #4a5568; /* slate-600 */
+            border: 1px solid #718096; /* slate-500 */
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
         }
-        .icon-x-circle {
-            width: 20px; height: 20px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        .radio-option-label:hover {
+            background-color: #2d3748; /* slate-700 */
+            border-color: #a0aec0; /* slate-400 */
         }
-        .icon-lightbulb {
-             width: 20px; height: 20px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-        .icon-sparkles {
-            width: 16px; height: 16px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-left: 0.25rem;
-        }
-        /* Estilo para el contenido generado por IA (explicaciones, historias) para preservar saltos de línea */
-        .ai-generated-content {
-            white-space: pre-wrap; 
+        .radio-option-label input[type="radio"] {
+            margin-right: 0.5rem;
+            accent-color: #ec4899; /* pink-500 */
         }
     </style>
 </head>
@@ -62,62 +62,46 @@
                 </svg>
                 <h2 class="text-2xl font-bold text-pink-400 text-center ml-2">Ingresa tu API Key de Gemini</h2>
             </div>
-            <p class="text-slate-400 text-sm mb-4 text-center">
-                Para utilizar FlorIA, necesitas una API Key de Google AI Studio (Gemini).
-            </p>
+            <p class="text-slate-400 text-sm mb-4 text-center">Para utilizar FlorIA, necesitas una API Key de Google AI Studio (Gemini).</p>
             <form id="apiKeyForm">
-                <input
-                    type="password"
-                    id="apiKeyInput"
-                    placeholder="Tu API Key aquí"
-                    class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all mb-4"
-                />
+                <input type="password" id="apiKeyInput" placeholder="Tu API Key aquí" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all mb-4"/>
                 <p id="apiKeyError" class="text-red-400 text-sm mb-4 text-center" style="display: none;"></p>
-                <button
-                    type="submit"
-                    id="validateApiKeyButton"
-                    class="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                    Validar y Continuar
-                </button>
+                <button type="submit" id="validateApiKeyButton" class="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">Validar y Continuar</button>
             </form>
-            <p class="text-slate-500 text-xs mt-6 text-center">
-                Puedes obtener una API Key en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-pink-400 hover:underline">Google AI Studio</a>.
-            </p>
+            <p class="text-slate-500 text-xs mt-6 text-center">Puedes obtener una API Key en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-pink-400 hover:underline">Google AI Studio</a>.</p>
         </div>
     </div>
 
     <div id="appContent" class="w-full max-w-3xl bg-slate-800/80 backdrop-blur-md shadow-2xl rounded-xl p-6 sm:p-8" style="display: none;">
         <header class="mb-8 text-center">
-            <h1 class="text-5xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300">
-                FlorIA
-            </h1>
+            <h1 class="text-5xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300">FlorIA</h1>
             <p class="text-slate-300 mt-2 text-sm sm:text-base">Tu asistente IA para conquistar el inglés.</p>
         </header>
 
-        <section class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+        <section class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div>
-                <label for="topicSelect" class="block text-lg font-semibold text-pink-400 mb-2">Elige un tema:</label>
+                <label for="topicSelect" class="block text-lg font-semibold text-pink-400 mb-2">Tema:</label>
                 <div class="relative">
                     <select id="topicSelect" class="w-full appearance-none p-3 pr-10 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all text-base"></select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                        <svg class="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400"><svg class="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
                 </div>
             </div>
             <div>
-                <label for="difficultySelect" class="block text-lg font-semibold text-pink-400 mb-2">Elige la dificultad:</label>
+                <label for="difficultySelect" class="block text-lg font-semibold text-pink-400 mb-2">Dificultad:</label>
                 <div class="relative">
                     <select id="difficultySelect" class="w-full appearance-none p-3 pr-10 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all text-base"></select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                        <svg class="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400"><svg class="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+            </div>
+            <div>
+                <label for="exerciseTypeSelect" class="block text-lg font-semibold text-pink-400 mb-2">Tipo de Ejercicio:</label>
+                <div class="relative">
+                    <select id="exerciseTypeSelect" class="w-full appearance-none p-3 pr-10 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all text-base"></select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400"><svg class="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
                 </div>
             </div>
         </section>
-        <button id="generateExerciseButton" class="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-            Generar Ejercicio
-        </button>
+        <button id="generateExerciseButton" class="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">Generar Ejercicio</button>
 
         <div id="generalErrorContainer" class="my-6 p-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg text-sm" style="display: none;">
             <p class="font-semibold">¡Oops! Algo salió mal:</p>
@@ -128,21 +112,15 @@
              <h2 id="exerciseTopicTitle" class="text-2xl font-semibold text-pink-300 mb-3"></h2>
              <div id="exerciseTopicExplanation" class="text-slate-300 mb-4 text-sm italic bg-slate-600/70 p-3 rounded-md">
                 <p id="initialExplanationText" class="ai-generated-content"></p>
-                <button id="deeperExplanationButton" class="mt-3 text-xs bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded-md transition-colors flex items-center disabled:opacity-60">
-                    Explicación Más Profunda
-                    <svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>
-                </button>
+                <button id="deeperExplanationButton" class="mt-3 text-xs bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded-md transition-colors flex items-center disabled:opacity-60">Explicación Más Profunda<svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg></button>
              </div>
              <div id="deeperExplanationLoader" class="text-center my-4 text-sky-300" style="display:none;">Buscando explicación más profunda...</div>
              <div id="deeperExplanationContent" class="my-4 p-4 bg-sky-800/30 border border-sky-700 rounded-lg text-sm text-slate-200" style="display:none;">
                 <h4 class="font-semibold text-sky-300 mb-2">Explicación Detallada:</h4>
                 <p id="deeperExplanationText" class="ai-generated-content"></p>
              </div>
-             <form id="exerciseForm">
-                </form>
-             <button id="validateAiButton" class="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-                Validar con IA
-            </button>
+             <form id="exerciseForm"></form>
+             <button id="validateAiButton" class="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">Validar con IA</button>
         </section>
 
         <section id="validationResultsSection" class="mt-8 p-6 bg-slate-700/70 rounded-xl border border-slate-600 shadow-inner" style="display: none;">
@@ -155,24 +133,18 @@
             <div id="generalTipsContainer" class="mb-6" style="display:none;">
                 <h3 class="text-xl font-semibold text-pink-400 mb-3 flex items-center">
                     <svg class="icon-lightbulb mr-2 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line><path d="M9 18h6v2a3 3 0 01-6 0v-2z"></path><path d="M15.5 16.5a4.5 4.5 0 00-7 0"></path><path d="M12 6a3 3 0 00-3 3h6a3 3 0 00-3-3z"></path></svg>
-                    Tips para Mejorar:
-                </h3>
+                    Tips para Mejorar:</h3>
                 <ul id="generalTipsList" class="list-disc list-inside space-y-2 pl-4 text-slate-300 text-sm"></ul>
             </div>
             <div id="miniStoryGeneratorContainer" class="mt-6">
-                 <button id="generateMiniStoryButton" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center disabled:opacity-60">
-                    Crear Mini-Historia con este Tema
-                    <svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>
-                </button>
+                 <button id="generateMiniStoryButton" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center disabled:opacity-60">Crear Mini-Historia<svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg></button>
             </div>
             <div id="miniStoryLoader" class="text-center my-4 text-teal-300" style="display:none;">Generando mini-historia...</div>
             <div id="miniStoryContent" class="my-4 p-4 bg-teal-800/30 border border-teal-700 rounded-lg text-sm text-slate-200" style="display:none;">
                 <h4 class="font-semibold text-teal-300 mb-2">Mini-Historia:</h4>
                 <p id="miniStoryText" class="ai-generated-content"></p>
             </div>
-            <button id="practiceAgainButton" class="mt-8 w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
-                Practicar de Nuevo
-            </button>
+            <button id="practiceAgainButton" class="mt-8 w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">Practicar de Nuevo</button>
         </section>
         
         <footer class="text-center mt-12 text-slate-400 text-xs">
@@ -225,6 +197,12 @@
           { id: "c1_collocations_phrasal_verbs_advanced", name: "Advanced Collocations and Phrasal Verbs" },
         ];
 
+        const exerciseTypes = [
+            { id: "fill_blank", name: "Completa la frase" },
+            { id: "multiple_choice", name: "¿Cuál es la opción?" },
+            { id: "order_words", name: "Ordena y vencerás" }
+        ];
+
         // --- REFERENCIAS A ELEMENTOS DEL DOM ---
         const apiKeyModalEl = document.getElementById('apiKeyModal');
         const apiKeyFormEl = document.getElementById('apiKeyForm');
@@ -235,25 +213,22 @@
         const yearSpanEl = document.getElementById('year');
         const topicSelectEl = document.getElementById('topicSelect');
         const difficultySelectEl = document.getElementById('difficultySelect');
+        const exerciseTypeSelectEl = document.getElementById('exerciseTypeSelect'); 
         const generateExerciseButtonEl = document.getElementById('generateExerciseButton');
         const exerciseSectionEl = document.getElementById('exerciseSection');
         const exerciseTopicTitleEl = document.getElementById('exerciseTopicTitle');
         const initialExplanationTextEl = document.getElementById('initialExplanationText');
         const deeperExplanationButtonEl = document.getElementById('deeperExplanationButton');
-        const deeperExplanationLoaderEl = document.getElementById('deeperExplanationLoader');
         const deeperExplanationContentEl = document.getElementById('deeperExplanationContent');
         const deeperExplanationTextEl = document.getElementById('deeperExplanationText');
         const exerciseFormEl = document.getElementById('exerciseForm');
         const validateAiButtonEl = document.getElementById('validateAiButton');
         const validationResultsSectionEl = document.getElementById('validationResultsSection');
-        const scoreContainerEl = document.getElementById('scoreContainer');
         const scoreTextEl = document.getElementById('scoreText');
         const feedbackContainerEl = document.getElementById('feedbackContainer');
         const generalTipsContainerEl = document.getElementById('generalTipsContainer');
         const generalTipsListEl = document.getElementById('generalTipsList');
-        const miniStoryGeneratorContainerEl = document.getElementById('miniStoryGeneratorContainer');
         const generateMiniStoryButtonEl = document.getElementById('generateMiniStoryButton');
-        const miniStoryLoaderEl = document.getElementById('miniStoryLoader');
         const miniStoryContentEl = document.getElementById('miniStoryContent');
         const miniStoryTextEl = document.getElementById('miniStoryText');
         const practiceAgainButtonEl = document.getElementById('practiceAgainButton');
@@ -262,7 +237,8 @@
 
         // --- ESTADO DE LA APLICACIÓN ---
         let currentExerciseData = null;
-        let userAnswers = {}; // { q1: "answer", q2: "answer" }
+        let currentExerciseType = exerciseTypes[0].id; 
+        let userAnswers = {}; 
 
         // --- FUNCIONES DE UTILIDAD ---
         function showElement(element, displayType = 'block') {
@@ -271,14 +247,16 @@
         function hideElement(element) {
             if(element) element.style.display = 'none';
         }
-        function setButtonLoading(button, isLoading, defaultText) {
+        function setButtonLoadingState(button, isLoading, defaultText) {
             if (!button) return;
+            const actualDefaultText = defaultText || button.dataset.defaultText || "Acción";
             if (isLoading) {
                 button.disabled = true;
+                if (!button.dataset.defaultText) button.dataset.defaultText = button.innerHTML; 
                 button.innerHTML = `<span class="loader"></span>Cargando...`;
             } else {
                 button.disabled = false;
-                button.innerHTML = defaultText;
+                button.innerHTML = actualDefaultText; 
             }
         }
         function displayGeneralError(message) {
@@ -297,12 +275,16 @@
             hideElement(deeperExplanationContentEl);
             hideElement(miniStoryContentEl);
             clearGeneralError();
-            exerciseFormEl.innerHTML = ""; // Limpiar preguntas anteriores
+            exerciseFormEl.innerHTML = ""; 
             feedbackContainerEl.innerHTML = "";
             generalTipsListEl.innerHTML = "";
             initialExplanationTextEl.textContent = "";
             deeperExplanationTextEl.textContent = "";
             miniStoryTextEl.textContent = "";
+            setButtonLoadingState(generateExerciseButtonEl, false, "Generar Ejercicio");
+            setButtonLoadingState(deeperExplanationButtonEl, false, 'Explicación Más Profunda <svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>');
+            setButtonLoadingState(validateAiButtonEl, false, "Validar con IA");
+            setButtonLoadingState(generateMiniStoryButtonEl, false, 'Crear Mini-Historia<svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>');
         }
 
         // --- LLAMADAS A LA API ---
@@ -320,49 +302,56 @@
             try {
                 const response = await fetch(`${API_URL_GEMINI_BASE}?key=${globalApiKey}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache' 
+                    },
                     body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
-                    console.error("API Error:", response.status, await response.text());
-                    if (response.status === 400 || response.status === 403) { // Errores comunes de API Key o malformed request
+                    const errorText = await response.text(); 
+                    console.error("API Error:", response.status, errorText);
+                    if (response.status === 400 || response.status === 403 || response.status === 401) { 
                         displayGeneralError("Problema con la API Key o la solicitud. Intenta recargar y reingresar la clave.");
                         showApiKeyModal();
                     } else {
-                        displayGeneralError(`Error de API: ${response.statusText}. Revisa la consola para más detalles.`);
+                        displayGeneralError(`Error de API (${response.status}). Revisa la consola para más detalles.`);
                     }
                     return null;
                 }
                 const result = await response.json();
-                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts[0].text) {
                     if (isJsonExpected) {
                         try {
                             return JSON.parse(result.candidates[0].content.parts[0].text);
                         } catch (e) {
-                            console.error("Error parseando JSON de la API:", e);
-                            displayGeneralError("La IA devolvió una respuesta en formato incorrecto (no es JSON válido).");
+                            console.error("Error parseando JSON de la API:", e, "Respuesta recibida:", result.candidates[0].content.parts[0].text);
+                            displayGeneralError("La IA devolvió una respuesta en formato incorrecto (no es JSON válido). Intenta de nuevo.");
                             return null;
                         }
                     }
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.error("Respuesta inesperada de la API:", result);
-                    displayGeneralError("Respuesta inesperada de la API. Revisa la consola.");
+                    console.error("Respuesta inesperada de la API (estructura):", result);
+                    displayGeneralError("Respuesta inesperada de la API. Revisa la consola e intenta de nuevo.");
                     return null;
                 }
             } catch (err) {
-                console.error("Error en callGeminiAPI:", err);
-                displayGeneralError(`Error de red o al procesar la solicitud: ${err.message}`);
+                console.error("Error en callGeminiAPI (fetch o red):", err);
+                displayGeneralError(`Error de red o al procesar la solicitud: ${err.message}. Verifica tu conexión.`);
                 return null;
             }
         }
 
         // --- LÓGICA DE API KEY ---
         function showApiKeyModal() {
-            globalApiKey = ""; // Invalida la clave actual
+            globalApiKey = ""; 
             showElement(apiKeyModalEl, 'flex');
             hideElement(appContentEl);
+            apiKeyInputEl.value = ""; 
+            apiKeyErrorEl.textContent = ""; 
+            hideElement(apiKeyErrorEl);
         }
 
         async function handleApiKeySubmit() {
@@ -373,77 +362,149 @@
                 return;
             }
             
-            setButtonLoading(validateApiKeyButtonEl, true, "Validar y Continuar");
+            setButtonLoadingState(validateApiKeyButtonEl, true, "Validar y Continuar");
             apiKeyErrorEl.textContent = "";
             hideElement(apiKeyErrorEl);
-
-            // Usamos la función genérica de llamada para validar
-            const testPrompt = "Responde solo con la palabra 'OK' si esta API key funciona.";
-            const tempGlobalApiKey = globalApiKey; // Guardar temporalmente
-            globalApiKey = key; // Usar la nueva clave para la prueba
             
+            const originalGlobalApiKey = globalApiKey; 
+            globalApiKey = key; 
+            
+            const testPrompt = "Responde solo con la palabra 'OK' si esta API key funciona y es válida.";
             const validationResponse = await callGeminiAPI(testPrompt);
             
             if (validationResponse && validationResponse.trim().toUpperCase() === 'OK') {
-                // globalApiKey ya está seteada con la nueva clave
                 hideElement(apiKeyModalEl);
                 showElement(appContentEl);
                 initializeAppUI(); 
             } else {
-                globalApiKey = tempGlobalApiKey; // Restaurar si falló
+                globalApiKey = originalGlobalApiKey; 
                 apiKeyErrorEl.textContent = "API Key incorrecta o inválida. Inténtalo nuevamente.";
                 showElement(apiKeyErrorEl);
-                // No es necesario loguear aquí porque callGeminiAPI ya lo hace
+                if (!validationResponse && globalApiKey === key) { 
+                    showApiKeyModal(); 
+                }
             }
-            setButtonLoading(validateApiKeyButtonEl, false, "Validar y Continuar");
+            setButtonLoadingState(validateApiKeyButtonEl, false, "Validar y Continuar");
         }
         
         // --- LÓGICA DE EJERCICIOS ---
+        function validateExerciseDataStructure(data, type) {
+            if (!data || typeof data.topicExplanation !== 'string' || !Array.isArray(data.questions) || data.questions.length !== 5) {
+                console.error("Validación fallida: Estructura principal del ejercicio incorrecta.", data);
+                return false;
+            }
+            for (const q of data.questions) {
+                switch (type) {
+                    case 'fill_blank':
+                        if (typeof q.sentence !== 'string' || !Array.isArray(q.options) || q.options.length !== 4 || typeof q.correctAnswer !== 'string' || typeof q.example !== 'string') {
+                            console.error("Validación fallida (fill_blank): Estructura de pregunta incorrecta.", q); return false;
+                        }
+                        if (!q.options.every(opt => typeof opt === 'string')) {
+                             console.error("Validación fallida (fill_blank): No todas las opciones son strings.", q.options); return false;
+                        }
+                        break;
+                    case 'multiple_choice':
+                        if (typeof q.mainQuestion !== 'string' || !Array.isArray(q.choices) || q.choices.length < 2 || typeof q.correctAnswerIndex !== 'number' || typeof q.example !== 'string') {
+                            console.error("Validación fallida (multiple_choice): Estructura de pregunta incorrecta.", q); return false;
+                        }
+                         if (!q.choices.every(choice => typeof choice === 'string')) {
+                             console.error("Validación fallida (multiple_choice): No todas las choices son strings.", q.choices); return false;
+                        }
+                        if (q.correctAnswerIndex < 0 || q.correctAnswerIndex >= q.choices.length) {
+                            console.error("Validación fallida (multiple_choice): correctAnswerIndex fuera de rango.", q); return false;
+                        }
+                        break;
+                    case 'order_words':
+                        if (!Array.isArray(q.scrambledWords) || q.scrambledWords.length < 2 || typeof q.correctSentence !== 'string' || typeof q.example !== 'string') {
+                            console.error("Validación fallida (order_words): Estructura de pregunta incorrecta.", q); return false;
+                        }
+                         if (!q.scrambledWords.every(word => typeof word === 'string')) {
+                             console.error("Validación fallida (order_words): No todas las scrambledWords son strings.", q.scrambledWords); return false;
+                        }
+                        break;
+                    default:
+                        console.error("Tipo de ejercicio desconocido para validación:", type); return false;
+                }
+            }
+            return true;
+        }
+
         async function handleGenerateExercise() {
             resetUIState();
-            setButtonLoading(generateExerciseButtonEl, true, "Generar Ejercicio");
+            setButtonLoadingState(generateExerciseButtonEl, true, "Generar Ejercicio");
 
             const topicId = topicSelectEl.value;
             const difficultyId = difficultySelectEl.value;
+            currentExerciseType = exerciseTypeSelectEl.value; 
             const topicName = allTopics.find(t => t.id === topicId)?.name || topicId;
             const difficultyName = difficultyLevels.find(d => d.id === difficultyId)?.name || difficultyId;
+            const exerciseTypeName = exerciseTypes.find(et => et.id === currentExerciseType)?.name || currentExerciseType;
 
-            const prompt = `Eres un profesor de inglés experto. Genera un ejercicio de aprendizaje de inglés sobre el tema '${topicName}' con un nivel de dificultad '${difficultyName}'.
+            let exercisePromptStructure = "";
+            switch (currentExerciseType) {
+                case 'fill_blank':
+                    exercisePromptStructure = `
+                    Formato de respuesta JSON esperado (¡Sigue este formato estrictamente!):
+                    {
+                      "topicExplanation": "Explicación...",
+                      "questions": [ 
+                        { "id": "qN", "sentence": "Frase con {blank}...", "options": ["op1", "op2", "op3", "op4"], "correctAnswer": "opX", "example": "Ejemplo de uso..." },
+                        // ...4 más, total 5 questions
+                      ]
+                    } El array 'questions' debe tener exactamente 5 elementos.`;
+                    break;
+                case 'multiple_choice':
+                    exercisePromptStructure = `
+                    Formato de respuesta JSON esperado (¡Sigue este formato estrictamente!):
+                    {
+                      "topicExplanation": "Explicación del tema general...",
+                      "questions": [
+                        { "id": "qN", "mainQuestion": "Pregunta principal (ej: ¿Cuál es la forma correcta...?)", "choices": ["Frase completa opción A", "Frase completa opción B", "Frase completa opción C"], "correctAnswerIndex": 0 (índice de la respuesta correcta en 'choices'), "example": "Ejemplo de uso del concepto..." },
+                        // ...4 más, total 5 questions. Cada 'choices' array debe tener al menos 2 opciones.
+                      ]
+                    } El array 'questions' debe tener exactamente 5 elementos.`;
+                    break;
+                case 'order_words':
+                    exercisePromptStructure = `
+                    Formato de respuesta JSON esperado (¡Sigue este formato estrictamente!):
+                    {
+                      "topicExplanation": "Explicación del tema general...",
+                      "questions": [
+                        { "id": "qN", "scrambledWords": ["palabra1", "palabra2", "palabra3", "etc"], "correctSentence": "La oración ordenada correctamente.", "example": "Ejemplo de uso del concepto..." },
+                        // ...4 más, total 5 questions. Cada 'scrambledWords' array debe tener al menos 2 palabras.
+                      ]
+                    } El array 'questions' debe tener exactamente 5 elementos.`;
+                    break;
+            }
+            
+            const prompt = `Eres un profesor de inglés experto. Genera un **nuevo y diferente** ejercicio de aprendizaje de inglés del tipo "${exerciseTypeName}" sobre el tema '${topicName}' con un nivel de dificultad '${difficultyName}'.
                 El ejercicio debe incluir:
                 1.  Una breve explicación del tema '${topicName}' en español, concisa y clara (máximo 3-4 frases).
-                2.  Exactamente 5 frases en inglés con un espacio en blanco (representado como {blank}) para ser rellenado. Las frases y vocabulario deben ser apropiados para la dificultad '${difficultyName}'.
-                3.  Para cada frase, proporciona 4 opciones en inglés: 3 incorrectas y 1 correcta.
-                4.  Indica cuál es la respuesta correcta para cada frase.
-                5.  Proporciona una frase de ejemplo en inglés que demuestre el uso correcto para cada una de las 5 frases.
-                Formato de respuesta JSON esperado:
-                {
-                  "topicExplanation": "Explicación...",
-                  "questions": [ { "id": "q1", "sentence": "...", "options": ["...", "..."], "correctAnswer": "...", "example": "..." } ]
-                } El JSON debe ser válido. Asegúrate de que "questions" sea un array de 5 elementos.`;
+                2.  Exactamente 5 preguntas o ítems de ejercicio **distintos a los que podrías haber generado antes para una solicitud similar**, adaptados al tipo "${exerciseTypeName}" y a la dificultad '${difficultyName}'.
+                ${exercisePromptStructure}
+                Asegúrate de que el JSON sea válido y la estructura sea la solicitada para el tipo de ejercicio. Intenta variar las frases y ejemplos en cada nueva generación.`;
 
             currentExerciseData = await callGeminiAPI(prompt, true);
 
-            if (currentExerciseData && currentExerciseData.questions && currentExerciseData.questions.length === 5) {
-                renderExercise(currentExerciseData, topicName, difficultyName);
+            if (validateExerciseDataStructure(currentExerciseData, currentExerciseType)) {
+                renderExercise(currentExerciseData, topicName, difficultyName, currentExerciseType);
                 showElement(exerciseSectionEl);
             } else {
-                if (currentExerciseData) { // Si hubo respuesta pero no es válida
-                     displayGeneralError("La IA generó un ejercicio en formato incorrecto. Intenta de nuevo.");
+                if (currentExerciseData) { 
+                     displayGeneralError("La IA generó un ejercicio con una estructura inesperada para el tipo seleccionado. Por favor, intenta generar el ejercicio de nuevo.");
                 }
-                // Si currentExerciseData es null, callGeminiAPI ya mostró un error.
             }
-            setButtonLoading(generateExerciseButtonEl, false, "Generar Ejercicio");
+            setButtonLoadingState(generateExerciseButtonEl, false, "Generar Ejercicio");
         }
 
-        function renderExercise(data, topicName, difficultyName) {
-            exerciseTopicTitleEl.textContent = `${topicName} (${difficultyName})`;
+        function renderExercise(data, topicName, difficultyName, type) {
+            exerciseTopicTitleEl.textContent = `${topicName} (${difficultyName}) - ${exerciseTypes.find(et => et.id === type)?.name}`;
             initialExplanationTextEl.textContent = data.topicExplanation;
-            exerciseFormEl.innerHTML = ""; // Limpiar preguntas anteriores
-            userAnswers = {}; // Resetear respuestas
+            exerciseFormEl.innerHTML = ""; 
+            userAnswers = {}; 
 
             data.questions.forEach((q, index) => {
-                const questionId = `q${index + 1}`; // Usar un ID simple
-                
+                const questionId = `q${index + 1}`;
                 const questionDiv = document.createElement('div');
                 questionDiv.className = "mb-8 p-4 border border-slate-500 rounded-lg bg-slate-700 shadow";
                 
@@ -452,44 +513,82 @@
                 qNumP.textContent = `Pregunta ${index + 1} de ${data.questions.length}`;
                 questionDiv.appendChild(qNumP);
 
-                const sentenceP = document.createElement('p');
-                sentenceP.className = "text-lg text-slate-100 mb-3";
-                sentenceP.textContent = q.sentence.replace('{blank}', '______');
-                questionDiv.appendChild(sentenceP);
+                switch (type) {
+                    case 'fill_blank':
+                        const sentenceP = document.createElement('p');
+                        sentenceP.className = "text-lg text-slate-100 mb-3";
+                        sentenceP.textContent = q.sentence.replace('{blank}', '______');
+                        questionDiv.appendChild(sentenceP);
 
-                const selectWrapper = document.createElement('div');
-                selectWrapper.className = "relative";
-                
-                const selectEl = document.createElement('select');
-                selectEl.id = questionId;
-                selectEl.className = "w-full appearance-none p-3 pr-10 rounded-md bg-slate-600 border border-slate-500 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all";
-                selectEl.dataset.questionId = questionId; // Guardar id para fácil acceso
-                
-                const defaultOption = document.createElement('option');
-                defaultOption.value = "";
-                defaultOption.textContent = "Selecciona una opción...";
-                defaultOption.disabled = true;
-                selectEl.appendChild(defaultOption);
+                        const selectWrapper = document.createElement('div');
+                        selectWrapper.className = "relative";
+                        const selectEl = document.createElement('select');
+                        selectEl.id = questionId;
+                        selectEl.className = "w-full appearance-none p-3 pr-10 rounded-md bg-slate-600 border border-slate-500 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all";
+                        selectEl.dataset.questionId = questionId;
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = ""; defaultOption.textContent = "Selecciona una opción..."; defaultOption.disabled = true;
+                        selectEl.appendChild(defaultOption);
+                        q.options.forEach(opt => { const o = document.createElement('option'); o.value = opt; o.textContent = opt; selectEl.appendChild(o); });
+                        selectEl.value = "";
+                        selectEl.addEventListener('change', (e) => userAnswers[e.target.dataset.questionId] = e.target.value);
+                        selectWrapper.appendChild(selectEl);
+                        const chevronIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                        chevronIcon.setAttribute("class", "icon-chevron-down pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 h-full");
+                        chevronIcon.setAttribute("viewBox", "0 0 24 24"); chevronIcon.innerHTML = `<polyline points="6 9 12 15 18 9"></polyline>`;
+                        selectWrapper.appendChild(chevronIcon);
+                        questionDiv.appendChild(selectWrapper);
+                        break;
 
-                q.options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt;
-                    option.textContent = opt;
-                    selectEl.appendChild(option);
-                });
-                selectEl.value = ""; // Asegurar que la opción por defecto esté seleccionada
+                    case 'multiple_choice':
+                        const mainQuestionP = document.createElement('p');
+                        mainQuestionP.className = "text-lg text-slate-100 mb-3";
+                        mainQuestionP.textContent = q.mainQuestion;
+                        questionDiv.appendChild(mainQuestionP);
+                        
+                        const choicesDiv = document.createElement('div');
+                        q.choices.forEach((choice, choiceIndex) => {
+                            const label = document.createElement('label');
+                            label.className = "radio-option-label";
+                            const radio = document.createElement('input');
+                            radio.type = "radio";
+                            radio.name = questionId; // Agrupar radios para una sola selección
+                            radio.value = choiceIndex.toString(); // Guardar el índice como valor
+                            radio.dataset.questionId = questionId;
+                            radio.addEventListener('change', (e) => userAnswers[e.target.dataset.questionId] = e.target.value); // Guardar índice
+                            label.appendChild(radio);
+                            label.appendChild(document.createTextNode(choice));
+                            choicesDiv.appendChild(label);
+                        });
+                        questionDiv.appendChild(choicesDiv);
+                        break;
 
-                selectEl.addEventListener('change', (e) => {
-                    userAnswers[e.target.dataset.questionId] = e.target.value;
-                });
+                    case 'order_words':
+                        const wordsP = document.createElement('p');
+                        wordsP.className = "text-lg text-slate-100 mb-1";
+                        wordsP.textContent = "Ordena estas palabras:";
+                        questionDiv.appendChild(wordsP);
 
-                selectWrapper.appendChild(selectEl);
-                const chevronIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                chevronIcon.setAttribute("class", "icon-chevron-down pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 h-full");
-                chevronIcon.setAttribute("viewBox", "0 0 24 24");
-                chevronIcon.innerHTML = `<polyline points="6 9 12 15 18 9"></polyline>`;
-                selectWrapper.appendChild(chevronIcon);
-                questionDiv.appendChild(selectWrapper);
+                        const wordsContainer = document.createElement('div');
+                        wordsContainer.className = "flex flex-wrap gap-2 mb-3 p-2 bg-slate-600 rounded-md";
+                        q.scrambledWords.forEach(word => {
+                            const wordSpan = document.createElement('span');
+                            wordSpan.className = "bg-pink-500 text-white px-2 py-1 rounded text-sm";
+                            wordSpan.textContent = word;
+                            wordsContainer.appendChild(wordSpan);
+                        });
+                        questionDiv.appendChild(wordsContainer);
+
+                        const inputAnswer = document.createElement('input');
+                        inputAnswer.type = "text";
+                        inputAnswer.id = questionId;
+                        inputAnswer.dataset.questionId = questionId;
+                        inputAnswer.placeholder = "Escribe la oración ordenada aquí...";
+                        inputAnswer.className = "w-full p-3 rounded-lg bg-slate-600 border border-slate-500 text-slate-100 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all";
+                        inputAnswer.addEventListener('input', (e) => userAnswers[e.target.dataset.questionId] = e.target.value);
+                        questionDiv.appendChild(inputAnswer);
+                        break;
+                }
 
                 if (q.example) {
                     const exampleP = document.createElement('p');
@@ -502,82 +601,122 @@
         }
 
         async function handleFetchDeeperExplanation() {
+            // ... (sin cambios significativos, solo asegurar que usa el topicName correcto)
             if (!currentExerciseData) return;
-            setButtonLoading(deeperExplanationButtonEl, true, '✨ Explicación Más Profunda');
-            hideElement(deeperExplanationContentEl); // Ocultar contenido anterior
-            deeperExplanationTextEl.textContent = ""; // Limpiar texto anterior
+            setButtonLoadingState(deeperExplanationButtonEl, true, 'Explicación Más Profunda <svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>');
+            hideElement(deeperExplanationContentEl); 
+            deeperExplanationTextEl.textContent = ""; 
 
             const topicName = allTopics.find(t => t.id === topicSelectEl.value)?.name || topicSelectEl.value;
             const difficultyName = difficultyLevels.find(d => d.id === difficultySelectEl.value)?.name || difficultySelectEl.value;
 
-            const prompt = `Eres un profesor de inglés experto. Proporciona una explicación más profunda y detallada sobre el tema gramatical '${topicName}' en español. 
-                Considera el nivel de dificultad '${difficultyName}' para ajustar la complejidad del lenguaje usado en tu explicación, pero el contenido debe ser exhaustivo.
-                Incluye:
-                - Una descripción clara de la regla gramatical.
-                - Casos de uso comunes.
-                - Ejemplos variados (al menos 3-4), diferentes a los que podrían estar en un ejercicio simple.
-                - Posibles excepciones o errores comunes a evitar, si aplica.
-                - Consejos para recordar o practicar el tema.
-                La explicación debe ser enteramente en español.`;
+            const prompt = `Eres un profesor de inglés experto. Proporciona una explicación más profunda y detallada sobre el tema gramatical '${topicName}' en español. Considera el nivel de dificultad '${difficultyName}'. Incluye descripción, uso, ejemplos, excepciones y consejos.`;
             
             const explanation = await callGeminiAPI(prompt);
             if (explanation) {
                 deeperExplanationTextEl.textContent = explanation;
                 showElement(deeperExplanationContentEl);
             }
-            // El loader y el error ya son manejados por setButtonLoading y callGeminiAPI
-            setButtonLoading(deeperExplanationButtonEl, false, '✨ Explicación Más Profunda');
+            setButtonLoadingState(deeperExplanationButtonEl, false, 'Explicación Más Profunda <svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>');
+        }
+        
+        function validateValidationDataStructure(data, type) { // Adaptada para tipo de ejercicio
+            if (!data || typeof data.score !== 'number' || !Array.isArray(data.feedback) || data.feedback.length !== 5 || !Array.isArray(data.generalTips)) {
+                console.error("Validación fallida: Estructura principal de la validación incorrecta.", data); return false;
+            }
+            for (const fb of data.feedback) {
+                // 'question' puede ser la frase con blank, la pregunta principal, o las palabras desordenadas (como string)
+                if (typeof fb.question !== 'string' || typeof fb.userAnswer !== 'string' || typeof fb.correctAnswer !== 'string' || typeof fb.isCorrect !== 'boolean' || typeof fb.explanation !== 'string') {
+                     console.error("Validación fallida: Estructura de un item de feedback incorrecta.", fb); return false;
+                }
+            }
+            if (!data.generalTips.every(tip => typeof tip === 'string')) {
+                console.error("Validación fallida: No todos los tips son strings.", data.generalTips); return false;
+            }
+            return true;
         }
 
         async function handleValidateWithAI() {
-            if (!currentExerciseData || Object.keys(userAnswers).length !== currentExerciseData.questions.length) {
-                displayGeneralError("Por favor, completa todas las respuestas antes de validar.");
-                return;
+            // ... (adaptar cómo se recolectan las respuestas y qué se envía a la IA)
+            if (!currentExerciseData) { displayGeneralError("No hay ejercicio para validar."); return; }
+            
+            let allAnswered = true;
+            for (let i = 0; i < currentExerciseData.questions.length; i++) {
+                if (!userAnswers[`q${i+1}`] || userAnswers[`q${i+1}`] === "") {
+                    allAnswered = false; break;
+                }
             }
+            if (!allAnswered) {
+                displayGeneralError("Por favor, completa todas las respuestas antes de validar."); return;
+            }
+
             clearGeneralError();
-            setButtonLoading(validateAiButtonEl, true, "Validar con IA");
-            hideElement(validationResultsSectionEl); // Ocultar resultados anteriores
+            setButtonLoadingState(validateAiButtonEl, true, "Validar con IA");
+            hideElement(validationResultsSectionEl); 
 
             const topicName = allTopics.find(t => t.id === topicSelectEl.value)?.name || topicSelectEl.value;
             const difficultyName = difficultyLevels.find(d => d.id === difficultySelectEl.value)?.name || difficultySelectEl.value;
+            const exerciseTypeName = exerciseTypes.find(et => et.id === currentExerciseType)?.name || currentExerciseType;
             
-            const exerciseDetails = currentExerciseData.questions.map((q, index) => ({
-              question: q.sentence,
-              options: q.options,
-              correctAnswer: q.correctAnswer,
-              userAnswer: userAnswers[`q${index+1}`] || "" // Asegurar que todas las preguntas tengan una respuesta (aunque sea vacía)
-            }));
+            const exerciseDetails = currentExerciseData.questions.map((q, index) => {
+                let questionContent;
+                let correctAnswerContent;
+                switch(currentExerciseType) {
+                    case 'fill_blank':
+                        questionContent = q.sentence;
+                        correctAnswerContent = q.correctAnswer;
+                        break;
+                    case 'multiple_choice':
+                        questionContent = q.mainQuestion;
+                        correctAnswerContent = q.choices[q.correctAnswerIndex]; // La frase correcta
+                        break;
+                    case 'order_words':
+                        questionContent = q.scrambledWords.join(" / "); // Representación de las palabras desordenadas
+                        correctAnswerContent = q.correctSentence;
+                        break;
+                }
+                return {
+                  question: questionContent,
+                  userAnswer: userAnswers[`q${index+1}`] || "",
+                  correctAnswer: correctAnswerContent,
+                  // Para multiple_choice, la IA podría necesitar saber las opciones para un feedback más preciso,
+                  // pero por ahora simplificamos. Se puede añadir 'choices' aquí si es necesario.
+                };
+            });
 
-            const prompt = `Eres un tutor de inglés experto y amigable. Un estudiante ha completado un ejercicio sobre '${topicName}' con dificultad '${difficultyName}'.
-                Aquí están los detalles del ejercicio y sus respuestas:
+            const prompt = `Eres un tutor de inglés experto. Un estudiante ha completado un ejercicio del tipo "${exerciseTypeName}" sobre '${topicName}' con dificultad '${difficultyName}'.
+                Aquí están los detalles y sus respuestas:
                 ${JSON.stringify(exerciseDetails, null, 2)}
                 Por favor, evalúa. Proporciona:
-                1.  Un puntaje general (número de respuestas correctas de 5).
-                2.  Feedback específico para CADA PREGUNTA.
-                3.  De 2 a 3 "Tips para mejorar" generales en español.
-                Formato de respuesta JSON esperado:
+                1.  Puntaje general (de 5).
+                2.  Feedback específico para CADA PREGUNTA. Para "multiple_choice", la 'userAnswer' es el índice de la opción elegida por el usuario y 'correctAnswer' es la frase correcta. Para "order_words", 'userAnswer' es la oración escrita por el usuario.
+                3.  2-3 "Tips para mejorar" generales en español.
+                Formato JSON esperado (¡Sigue este formato estrictamente!):
                 {
                   "score": 3,
-                  "feedback": [ { "question": "...", "userAnswer": "...", "correctAnswer": "...", "isCorrect": true/false, "explanation": "..." } ],
+                  "feedback": [ { "question": "Contenido original de la pregunta...", "userAnswer": "Respuesta del usuario...", "correctAnswer": "Respuesta correcta...", "isCorrect": true/false, "explanation": "Explicación detallada..." } ],
                   "generalTips": ["Tip 1...", "Tip 2..."]
-                } El JSON debe ser válido.`;
+                } El array 'feedback' debe tener exactamente 5 elementos.`;
 
             const validationData = await callGeminiAPI(prompt, true);
 
-            if (validationData && typeof validationData.score === 'number' && validationData.feedback && validationData.generalTips) {
-                renderValidationResults(validationData);
+            if (validateValidationDataStructure(validationData, currentExerciseType)) {
+                renderValidationResults(validationData, currentExerciseType); // Pasar el tipo para renderizado específico si es necesario
                 showElement(validationResultsSectionEl);
             } else {
                  if (validationData) { 
-                     displayGeneralError("La IA generó una validación en formato incorrecto. Intenta de nuevo.");
+                     displayGeneralError("La IA generó una validación con una estructura inesperada. Intenta validar de nuevo.");
                 }
             }
-            setButtonLoading(validateAiButtonEl, false, "Validar con IA");
+            setButtonLoadingState(validateAiButtonEl, false, "Validar con IA");
         }
         
-        function renderValidationResults(results) {
+        function renderValidationResults(results, type) { // 'type' no se usa aún pero podría ser útil
+            // ... (la lógica de renderizado de feedback es mayormente la misma)
+            // La principal diferencia es cómo se muestra 'fb.question' si varía mucho por tipo.
+            // Por ahora, se asume que fb.question es una representación textual adecuada.
             scoreTextEl.textContent = `${results.score} / ${currentExerciseData.questions.length}`;
-            feedbackContainerEl.innerHTML = ""; // Limpiar feedback anterior
+            feedbackContainerEl.innerHTML = ""; 
 
             results.feedback.forEach(fb => {
                 const fbDiv = document.createElement('div');
@@ -600,15 +739,24 @@
 
                 const titleH4 = document.createElement('h4');
                 titleH4.className = "ml-2 text-lg font-semibold text-slate-100";
-                // Truncar pregunta si es muy larga para el título
                 const qTextForTitle = fb.question.length > 50 ? fb.question.substring(0, 47) + "..." : fb.question;
-                titleH4.textContent = `Pregunta: "${qTextForTitle.replace('{blank}', '...')}"`;
+                titleH4.textContent = `Pregunta: "${qTextForTitle.replace('{blank}', '...')}"`; // Ajustar si {blank} no aplica
                 headerDiv.appendChild(titleH4);
                 fbDiv.appendChild(headerDiv);
 
                 const answerP = document.createElement('p');
                 answerP.className = `text-sm ${fb.isCorrect ? 'text-green-300' : 'text-red-300'}`;
-                let answerHTML = `Tu respuesta: <span class="font-medium">${fb.userAnswer || "(No respondida)"}</span>`;
+                let userAnswerDisplay = fb.userAnswer;
+                if (currentExerciseType === 'multiple_choice' && currentExerciseData && currentExerciseData.questions) {
+                    // Encontrar la pregunta original para obtener el texto de la opción elegida
+                    const originalQuestion = currentExerciseData.questions.find(q => 
+                        (q.mainQuestion === fb.question || q.sentence === fb.question) // Heurística para encontrar la pregunta
+                    );
+                    if (originalQuestion && originalQuestion.choices && !isNaN(parseInt(fb.userAnswer))) {
+                        userAnswerDisplay = originalQuestion.choices[parseInt(fb.userAnswer)] || fb.userAnswer;
+                    }
+                }
+                let answerHTML = `Tu respuesta: <span class="font-medium">${userAnswerDisplay || "(No respondida)"}</span>`;
                 if (!fb.isCorrect) {
                     answerHTML += `<span class="ml-2">| Correcta: <span class="font-medium">${fb.correctAnswer}</span></span>`;
                 }
@@ -624,7 +772,7 @@
             });
 
             if (results.generalTips && results.generalTips.length > 0) {
-                generalTipsListEl.innerHTML = ""; // Limpiar tips anteriores
+                generalTipsListEl.innerHTML = ""; 
                 results.generalTips.forEach(tip => {
                     const li = document.createElement('li');
                     li.className = "bg-slate-600/70 p-2 rounded-md";
@@ -638,40 +786,32 @@
         }
 
         async function handleGenerateMiniStory() {
-            if (!currentExerciseData) return;
-            setButtonLoading(generateMiniStoryButtonEl, true, '✨ Crear Mini-Historia...');
+            // ... (sin cambios significativos)
+            if (!currentExerciseData) return; 
+            setButtonLoadingState(generateMiniStoryButtonEl, true, '✨ Crear Mini-Historia...');
             hideElement(miniStoryContentEl);
             miniStoryTextEl.textContent = "";
 
             const topicName = allTopics.find(t => t.id === topicSelectEl.value)?.name || topicSelectEl.value;
             const difficultyName = difficultyLevels.find(d => d.id === difficultySelectEl.value)?.name || difficultySelectEl.value;
 
-            const prompt = `Eres un escritor creativo y profesor de inglés. Escribe una mini-historia (3 a 5 frases cortas) en inglés.
-                La historia debe:
-                - Utilizar prominentemente el tema gramatical: '${topicName}'.
-                - Ser adecuada para un estudiante de inglés con un nivel de dificultad general '${difficultyName}'.
-                - Ser interesante y coherente.
-                - Estar completamente en inglés.
-                Al final de la historia, añade una traducción muy breve al español de la historia completa, entre paréntesis. Ejemplo: "(Traducción: ...)"`;
+            const prompt = `Eres un escritor creativo y profesor de inglés. Escribe una mini-historia (3 a 5 frases cortas) en inglés. Utiliza el tema gramatical: '${topicName}', con dificultad '${difficultyName}'. Incluye traducción breve al español entre paréntesis.`;
             
             const story = await callGeminiAPI(prompt);
             if (story) {
                 miniStoryTextEl.textContent = story;
                 showElement(miniStoryContentEl);
             }
-            setButtonLoading(generateMiniStoryButtonEl, false, '✨ Crear Mini-Historia con este Tema');
+            setButtonLoadingState(generateMiniStoryButtonEl, false, 'Crear Mini-Historia<svg class="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L14.5 8L21 9.5L16.5 14.5L18 21L12 17.5L6 21L7.5 14.5L3 9.5L9.5 8L12 2z"/><path d="M6.5 2.5L7.5 5L10 5.5L8.5 7.5L9 9.5L7.5 8.5L6 9.5L6.5 7.5L5 5.5L7.5 5L6.5 2.5z"/><path d="M17.5 2.5L16.5 5L14 5.5L15.5 7.5L15 9.5L16.5 8.5L18 9.5L17.5 7.5L19 5.5L16.5 5L17.5 2.5z"/></svg>');
         }
 
         function handlePracticeAgain() {
             resetUIState();
-            // Opcional: podrías querer volver a la parte superior de la página
-            // window.scrollTo(0, 0); 
         }
 
         // --- INICIALIZACIÓN DE LA UI PRINCIPAL ---
         function initializeAppUI() {
-            // Poblar dropdown de temas
-            topicSelectEl.innerHTML = ""; // Limpiar opciones previas
+            topicSelectEl.innerHTML = ""; 
             allTopics.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic.id;
@@ -679,23 +819,30 @@
                 topicSelectEl.appendChild(option);
             });
 
-            // Poblar dropdown de dificultad
-            difficultySelectEl.innerHTML = ""; // Limpiar opciones previas
+            difficultySelectEl.innerHTML = ""; 
             difficultyLevels.forEach(level => {
                 const option = document.createElement('option');
                 option.value = level.id;
                 option.textContent = level.name;
                 difficultySelectEl.appendChild(option);
             });
+
+            exerciseTypeSelectEl.innerHTML = ""; // Poblar nuevo selector
+            exerciseTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.name;
+                exerciseTypeSelectEl.appendChild(option);
+            });
+            currentExerciseType = exerciseTypeSelectEl.value; // Establecer tipo por defecto
             
-            // Resetear cualquier estado de ejercicio previo
             resetUIState();
         }
 
         // --- EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
             yearSpanEl.textContent = new Date().getFullYear();
-            showElement(apiKeyModalEl, 'flex'); // Mostrar modal al inicio
+            showElement(apiKeyModalEl, 'flex'); 
 
             apiKeyFormEl.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -708,12 +855,14 @@
             generateMiniStoryButtonEl.addEventListener('click', handleGenerateMiniStory);
             practiceAgainButtonEl.addEventListener('click', handlePracticeAgain);
 
-            // Listeners para cambios en selectores para resetear el ejercicio actual
             topicSelectEl.addEventListener('change', resetUIState);
             difficultySelectEl.addEventListener('change', resetUIState);
+            exerciseTypeSelectEl.addEventListener('change', () => { // Actualizar tipo y resetear
+                currentExerciseType = exerciseTypeSelectEl.value;
+                resetUIState();
+            });
         });
 
     </script>
 </body>
-</html>
-```
+</ht
