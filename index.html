@@ -294,7 +294,7 @@
                 showApiKeyModal();
                 return null;
             }
-            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], 'safety_settings': { 'harassment': 'BLOCK_ALL', 'hate_speech': 'BLOCK_ALL', 'sexual_content': 'BLOCK_ALL', 'dangerous_content': 'BLOCK_ALL' }  };
             if (isJsonExpected) {
                 payload.generationConfig = { responseMimeType: "application/json" };
             }
